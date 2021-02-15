@@ -1,3 +1,10 @@
+## First React project - Name your bébé!
+Developed during the Frameworks and Architectures for the Web course in Spring 2020 at the IT University of Copenhagen
+
+Accessible via https://name-your-bebe.web.app/
+
+---
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
