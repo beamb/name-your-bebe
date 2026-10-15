@@ -37,6 +37,7 @@ const customStyles: StylesConfig<LanguageOption, true> = {
   }),
   multiValue: (styles) => ({
     ...styles,
+    alignItems: 'center',
     maxWidth: '100%',
   }),
   multiValueRemove: (styles) => ({
