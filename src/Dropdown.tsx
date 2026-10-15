@@ -1,8 +1,10 @@
-import React from 'react';
+import { Component } from 'react';
 import Select, { components } from 'react-select';
-import { options } from "./options.js";
+import type { MultiValue, OptionProps, StylesConfig } from 'react-select';
+import { options } from "./options";
+import type { LanguageOption, UsageCode } from "./options";
 
-const Option = props => {
+const Option = (props: OptionProps<LanguageOption, true>) => {
   return (
     <components.Option
       {...props}
@@ -11,7 +13,7 @@ const Option = props => {
   );
 };
 
-const customStyles = {
+const customStyles: StylesConfig<LanguageOption, true> = {
   container: (styles) => ({
     ...styles,
     width: '100%',
@@ -45,33 +47,35 @@ const customStyles = {
   }),
 };
 
-class Dropdown extends React.Component {
-  state = {
-    selectedOption: null,
+interface DropdownProps {
+  onDropdown: (usage: UsageCode[]) => void;
+}
+
+interface DropdownState {
+  selectedOption: MultiValue<LanguageOption>;
+}
+
+class Dropdown extends Component<DropdownProps, DropdownState> {
+  override state: DropdownState = {
+    selectedOption: [],
   };
 
-  handleChange = selectedOption => {
+  handleChange = (selectedOption: MultiValue<LanguageOption>): void => {
     this.setState(
       { selectedOption },
       this.updateUsageChange
     );
   };
 
-  updateUsageChange = () => {
-    var i;
-    var code = [];
-    if (this.state.selectedOption != null) {
-    for (i = 0; i < this.state.selectedOption.length; i++) {
-      code.push(this.state.selectedOption[i].key);
-    }}
-    this.props.onDropdown(code);
+  updateUsageChange = (): void => {
+    this.props.onDropdown(this.state.selectedOption.map(option => option.key));
   }
   
-  render() {
+  override render() {
     const { selectedOption } = this.state;
 
     return (
-      <Select
+      <Select<LanguageOption, true>
         className="language-select"
         aria-label="Languages"
         getOptionValue={option => option.key}

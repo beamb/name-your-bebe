@@ -13,7 +13,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    setupFiles: ['./src/setupTests.js'],
+    setupFiles: ['./src/setupTests.ts'],
     server: {
       // Transform the spinner's ESM/CommonJS boundary through Vite in tests too.
       deps: { inline: ['react-loader-spinner'] },

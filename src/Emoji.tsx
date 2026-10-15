@@ -1,5 +1,3 @@
-import React from 'react';
-
 // Shared proportions keep the symbols centred independently of platform fonts.
 const symbols = {
     '♀': <>
@@ -16,7 +14,12 @@ const symbols = {
     </>,
 };
 
-const Emoji = ({ symbol, label }) => (
+interface EmojiProps {
+    symbol: keyof typeof symbols;
+    label?: string;
+}
+
+const Emoji = ({ symbol, label }: EmojiProps) => (
     <svg
         className="emoji"
         viewBox="0 0 32 32"

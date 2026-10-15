@@ -1,7 +1,10 @@
-import React from 'react';
 import { ThreeDots } from 'react-loader-spinner';
 
-const LoadingIndicator = ({ loading }) => (
+interface LoadingIndicatorProps {
+  loading: boolean;
+}
+
+const LoadingIndicator = ({ loading }: LoadingIndicatorProps) => (
   loading ? <ThreeDots color="#000000" ariaLabel="Loading names" /> : null
 );
 

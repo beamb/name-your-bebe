@@ -1,10 +1,13 @@
-import React from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
-import App from './App.jsx';
+import App from './App';
 import * as serviceWorker from './serviceWorker';
 
-createRoot(document.getElementById('root')).render(<App />);
+const root = document.getElementById('root');
+if (!root) {
+  throw new Error('The root element was not found');
+}
+createRoot(root).render(<App />);
 
 // Remove an existing service worker left by an earlier deployment.
 serviceWorker.unregister();

@@ -1,35 +1,44 @@
-import React, { Component } from "react";
+import { Component } from "react";
 import "./App.css";
-import Dropdown from "./Dropdown.jsx";
-import LoadingIndicator from "./InnerLoadingIndicator.jsx";
-import Emoji from "./Emoji.jsx";
+import Dropdown from "./Dropdown";
+import LoadingIndicator from "./InnerLoadingIndicator";
+import Emoji from "./Emoji";
+import type { UsageCode } from "./options";
 
-const colorArray = ["linear-gradient(to bottom right, #ffa1db, #2cb2ff)", "linear-gradient(to bottom right, #2cb2ff, #ffa1db)", "linear-gradient(to bottom right, #fff280, #5cff64)"];
-const reversedColorArray = ["linear-gradient(to bottom left, #DFF2FB, #F9DDE5)", "linear-gradient(to bottom left, #F9DDE5, #DFF2FB)", "linear-gradient(to bottom left, #C9FCCC, #FDFBDB)"];
+const colorArray = ["linear-gradient(to bottom right, #ffa1db, #2cb2ff)", "linear-gradient(to bottom right, #2cb2ff, #ffa1db)", "linear-gradient(to bottom right, #fff280, #5cff64)"] as const;
+const reversedColorArray = ["linear-gradient(to bottom left, #DFF2FB, #F9DDE5)", "linear-gradient(to bottom left, #F9DDE5, #DFF2FB)", "linear-gradient(to bottom left, #C9FCCC, #FDFBDB)"] as const;
 
-class App extends Component {
-  constructor(props) {
-    super(props);
+type Gender = "f" | "m" | "u";
 
-    this.state = {
-      name: "???",
-      gender: "",
-      usage: [],
-      color: "linear-gradient(to bottom right, #5cff64, #fff280)",
-      reversedColor: "linear-gradient(to bottom left, #FDFBDB, #C9FCCC)",
-      loading: false,
-      hasError: false,
-    };
-  }
+interface AppState {
+  name: string;
+  gender: Gender | "";
+  usage: UsageCode[];
+  color: string;
+  reversedColor: string;
+  loading: boolean;
+  hasError: boolean;
+}
 
-  changeColor(i) {
+class App extends Component<object, AppState> {
+  override state: AppState = {
+    name: "???",
+    gender: "",
+    usage: [],
+    color: "linear-gradient(to bottom right, #5cff64, #fff280)",
+    reversedColor: "linear-gradient(to bottom left, #FDFBDB, #C9FCCC)",
+    loading: false,
+    hasError: false,
+  };
+
+  changeColor(i: 0 | 1 | 2): void {
     this.setState({
       color: colorArray[i],
       reversedColor: reversedColorArray[i]
     });
   }
 
-  async fetchName(gender) {
+  async fetchName(gender: Gender): Promise<void> {
     this.setState({ loading: true, name: "", gender, hasError: false });
     if (gender === "f") { this.changeColor(0)}
     else if (gender === "m") {this.changeColor(1)}
@@ -40,16 +49,16 @@ class App extends Component {
       gender,
     });
     // Snapshot the selection so changes in the dropdown affect the next click.
-    const remainingUsages = Array.from(new Set(this.state.usage));
+    const remainingUsages: (UsageCode | undefined)[] = Array.from(new Set(this.state.usage));
     if (remainingUsages.length === 0) {
-      remainingUsages.push(null);
+      remainingUsages.push(undefined);
     }
     try {
       while (remainingUsages.length > 0) {
         // Pick without replacement so each language is tried at most once.
         const index = Math.floor(Math.random() * remainingUsages.length);
         const [usage] = remainingUsages.splice(index, 1);
-        if (usage !== null) {
+        if (usage !== undefined) {
           params.set("usage", usage);
         }
         const response = await fetch(
@@ -58,32 +67,33 @@ class App extends Component {
         if (!response.ok) {
           throw new Error("Name request failed");
         }
-        const result = await response.json();
-        const name = result && Array.isArray(result.names) && result.names[0];
+        const result: unknown = await response.json();
+        const name: unknown = result !== null && typeof result === "object" &&
+          "names" in result && Array.isArray(result.names) ? result.names[0] : undefined;
         if (typeof name === "string" && name.trim()) {
           this.setState({ name });
           return;
         }
         if (remainingUsages.length > 0) {
           // Leave room for the API's limit of two requests per second.
-          await new Promise(resolve => setTimeout(resolve, 550));
+          await new Promise<void>(resolve => setTimeout(resolve, 550));
         }
       }
       this.setState({ name: "Sorry, no match", hasError: true });
-    } catch (e) {
+    } catch {
       this.setState({ name: "Sorry, please try again", hasError: true });
     } finally {
       this.setState({ loading: false });
     }
   }
 
-  updateUsage = (code) => {
+  updateUsage = (code: UsageCode[]): void => {
       this.setState({
       usage: code
     });
   }
 
-  render() {
+  override render() {
 
     const stylesObj = {
       background: this.state.color

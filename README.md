@@ -22,7 +22,7 @@ latter can miss valid matches and uses more of the API request quota.
 
 ---
 
-The app uses React, Vite, and Vitest. Node.js 20.19+ or 22.12+ is required
+The app uses TypeScript, React, Vite, and Vitest. Node.js 20.19+ or 22.12+ is required
 (see `package.json` for the exact supported range). Use a supported Node LTS
 release for ongoing development. The OpenSSL legacy-provider flag is no longer
 needed.
@@ -31,7 +31,13 @@ needed.
 
 Run `npm ci` to install the dependencies from the lockfile, then `npm start` to
 start the development server at http://localhost:3000. Vite reloads the app as
-you edit source files. Components containing JSX use the `.jsx` extension.
+you edit source files. Components and their tests use `.tsx`; other source files
+and the Vite configuration use `.ts`.
+
+Run `npm run typecheck` to check all source files, tests, and the Vite configuration
+without generating files. TypeScript strict mode is enabled, including null and
+indexed-access checks. Language codes are derived from the options data, and API
+responses are validated at runtime before names are displayed.
 
 ## Tests
 
@@ -40,7 +46,8 @@ Vitest uses jsdom and React Testing Library; API requests are mocked in tests.
 
 ## Production build
 
-Run `npm run build` to create the production files in `build/`. This keeps the
+Run `npm run build` to type-check the project and create production files in
+`build/`. A type error stops the build. This keeps the
 existing Firebase Hosting configuration compatible. Run `npm run preview` to
 preview that build locally; the command prints the preview URL.
 
