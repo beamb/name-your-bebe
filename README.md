@@ -3,6 +3,17 @@ Developed during the Frameworks and Architectures for the Web course in Spring 2
 
 Accessible via https://name-your-bebe.web.app/
 
+When several languages are selected, each request chooses one of them at random
+with equal probability. Suggestions belong to at least one selected language;
+they are not guaranteed to be used in all selected languages. With no selection,
+the API's default usage applies.
+
+[Behind the Name's API](https://www.behindthename.com/api/help.php) accepts a
+single `usage` filter and does not offer a full name-list endpoint. Finding names
+shared by all selected languages would require a dataset with gender and multiple
+usage tags, or bounded random sampling followed by individual name lookups. The
+latter can miss valid matches and uses more of the API request quota.
+
 ---
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

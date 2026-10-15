@@ -30,37 +30,37 @@ class App extends Component {
   }
 
   async fetchName(gender) {
-    this.setState({ loading: true });
-    this.setState({ name: "" })
-    this.setState({ gender: gender });
+    this.setState({ loading: true, name: "", gender });
     if (gender === "f") { this.changeColor(0)}
     else if (gender === "m") {this.changeColor(1)}
     else if (gender === "u") {this.changeColor(2)}
-    const baseUrl =
-      "https://www.behindthename.com/api/random.json?key=be035335079&number=1";
-    var genderParam = `&gender=${gender}`;
-    var usageParam = "";
+    const params = new URLSearchParams({
+      key: "be035335079",
+      number: "1",
+      gender,
+    });
     if (this.state.usage.length > 0) {
-      usageParam = `&usage=${this.state.usage[0]}`;
-      if (this.state.usage.length > 1) {
-        var i;
-        for (i = 1; i < this.state.usage.length; i++) {
-          usageParam += `&${this.state.usage[i]}`;
-        }
-      }
+      // The API accepts one usage. Give each selected language an equal chance.
+      const index = Math.floor(Math.random() * this.state.usage.length);
+      params.set("usage", this.state.usage[index]);
     }
-    const results = await fetch(baseUrl + genderParam + usageParam);
-    const results_1 = await results.json();
-    console.log(baseUrl+genderParam+usageParam);
-    let nameResult = "";
     try {
-      nameResult = results_1.names[0];
+      const response = await fetch(
+        `https://www.behindthename.com/api/random.json?${params.toString()}`
+      );
+      if (!response.ok) {
+        throw new Error("Name request failed");
+      }
+      const result = await response.json();
+      const name = result && Array.isArray(result.names) && result.names[0];
+      this.setState({
+        name: typeof name === "string" && name ? name : "Sorry, no match",
+      });
     } catch (e) {
-      nameResult = "Sorry, no match";
+      this.setState({ name: "Sorry, please try again" });
+    } finally {
+      this.setState({ loading: false });
     }
-    console.log(nameResult);
-    this.setState({ name: nameResult });
-    this.setState({ loading: false });
   }
 
   updateUsage = (code) => {
@@ -120,6 +120,7 @@ class App extends Component {
           </div>
           <p>In which language(s) do you expect people to call your baby&apos;s name?</p>
         <Dropdown onDropdown={this.updateUsage} />
+          <p>Each suggestion comes from one randomly chosen selected language.</p>
         </div>
       </div>
     );
