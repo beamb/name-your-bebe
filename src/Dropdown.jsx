@@ -12,9 +12,17 @@ const Option = props => {
 };
 
 const customStyles = {
+  container: (styles) => ({
+    ...styles,
+    width: '100%',
+    minWidth: 0,
+  }),
   option: (styles) => ({
     ...styles,
     cursor: 'pointer',
+    minHeight: 44,
+    display: 'flex',
+    alignItems: 'center',
   }),
   dropdownIndicator: (styles) => ({
     ...styles,
@@ -23,6 +31,17 @@ const customStyles = {
   control: (styles) => ({
     ...styles,
     cursor: 'text',
+    minHeight: 48,
+  }),
+  multiValue: (styles) => ({
+    ...styles,
+    maxWidth: '100%',
+  }),
+  multiValueRemove: (styles) => ({
+    ...styles,
+    minWidth: 32,
+    minHeight: 32,
+    justifyContent: 'center',
   }),
 };
 
@@ -53,10 +72,13 @@ class Dropdown extends React.Component {
 
     return (
       <Select
+        className="language-select"
         aria-label="Languages"
         getOptionValue={option => option.key}
         isMulti={true}
         closeMenuOnSelect={false}
+        menuPlacement="auto"
+        maxMenuHeight={240}
         components={{ Option }}
         placeholder="Select language(s)... Type to narrow your search."
         value={selectedOption}

@@ -18,6 +18,7 @@ class App extends Component {
       color: "linear-gradient(to bottom right, #5cff64, #fff280)",
       reversedColor: "linear-gradient(to bottom left, #FDFBDB, #C9FCCC)",
       loading: false,
+      hasError: false,
     };
   }
 
@@ -29,7 +30,7 @@ class App extends Component {
   }
 
   async fetchName(gender) {
-    this.setState({ loading: true, name: "", gender });
+    this.setState({ loading: true, name: "", gender, hasError: false });
     if (gender === "f") { this.changeColor(0)}
     else if (gender === "m") {this.changeColor(1)}
     else if (gender === "u") {this.changeColor(2)}
@@ -68,9 +69,9 @@ class App extends Component {
           await new Promise(resolve => setTimeout(resolve, 550));
         }
       }
-      this.setState({ name: "Sorry, no match" });
+      this.setState({ name: "Sorry, no match", hasError: true });
     } catch (e) {
-      this.setState({ name: "Sorry, please try again" });
+      this.setState({ name: "Sorry, please try again", hasError: true });
     } finally {
       this.setState({ loading: false });
     }
@@ -98,7 +99,9 @@ class App extends Component {
           <h1>Name your &quot;bébé&quot;!</h1>
           <h4>The intercultural baby name generator</h4>
           <h2>Hi citizen of the world! Are you hoping to find <strong>THE best international name</strong> for your newborn? Then you&apos;ve landed in the right place.<br/><br/>Pick a gender (or don&apos;t) and let the generator inspire you!</h2>
-          <h1 className="babyname">{this.state.name}<LoadingIndicator loading={this.state.loading} /></h1>
+          <h1 className={`babyname${this.state.hasError ? " babyname--message" : ""}`}>
+            {this.state.name}<LoadingIndicator loading={this.state.loading} />
+          </h1>
           <div className="buttons">
             <button 
               className="genderButton"
@@ -131,9 +134,9 @@ class App extends Component {
               <Emoji symbol="♂" label="Male sign"/>
             </button>
           </div>
-          <p>In which language(s) do you expect people to call your baby&apos;s name?</p>
-        <Dropdown onDropdown={this.updateUsage} />
-          <p>We try your selected languages in a random order until we find a name.</p>
+          <p className="language-label">In which language(s) do you expect people to call your baby&apos;s name?</p>
+          <Dropdown onDropdown={this.updateUsage} />
+          <p className="language-hint">We try your selected languages in a random order until we find a name.</p>
         </div>
       </div>
     );
