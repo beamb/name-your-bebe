@@ -3,10 +3,16 @@ Developed during the Frameworks and Architectures for the Web course in Spring 2
 
 Accessible via https://name-your-bebe.web.app/
 
-When several languages are selected, each request chooses one of them at random
-with equal probability. Suggestions belong to at least one selected language;
-they are not guaranteed to be used in all selected languages. With no selection,
-the API's default usage applies.
+When several languages are selected, each click tries them in a random order
+until a name is found. Each language is tried at most once, with the same gender
+throughout. "Sorry, no match" appears only after all selected languages return
+no name. Suggestions belong to at least one selected language; they are not
+guaranteed to be used in all selected languages. With no selection, one request
+uses the API's default usage.
+
+Retries wait 550 ms after an empty response to respect the API's
+[two-requests-per-second limit](https://www.behindthename.com/api/). Network,
+HTTP, and invalid JSON failures stop the search and show a retry message.
 
 [Behind the Name's API](https://www.behindthename.com/api/help.php) accepts a
 single `usage` filter and does not offer a full name-list endpoint. Finding names

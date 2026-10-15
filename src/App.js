@@ -39,23 +39,37 @@ class App extends Component {
       number: "1",
       gender,
     });
-    if (this.state.usage.length > 0) {
-      // The API accepts one usage. Give each selected language an equal chance.
-      const index = Math.floor(Math.random() * this.state.usage.length);
-      params.set("usage", this.state.usage[index]);
+    // Snapshot the selection so changes in the dropdown affect the next click.
+    const remainingUsages = Array.from(new Set(this.state.usage));
+    if (remainingUsages.length === 0) {
+      remainingUsages.push(null);
     }
     try {
-      const response = await fetch(
-        `https://www.behindthename.com/api/random.json?${params.toString()}`
-      );
-      if (!response.ok) {
-        throw new Error("Name request failed");
+      while (remainingUsages.length > 0) {
+        // Pick without replacement so each language is tried at most once.
+        const index = Math.floor(Math.random() * remainingUsages.length);
+        const [usage] = remainingUsages.splice(index, 1);
+        if (usage !== null) {
+          params.set("usage", usage);
+        }
+        const response = await fetch(
+          `https://www.behindthename.com/api/random.json?${params.toString()}`
+        );
+        if (!response.ok) {
+          throw new Error("Name request failed");
+        }
+        const result = await response.json();
+        const name = result && Array.isArray(result.names) && result.names[0];
+        if (typeof name === "string" && name.trim()) {
+          this.setState({ name });
+          return;
+        }
+        if (remainingUsages.length > 0) {
+          // Leave room for the API's limit of two requests per second.
+          await new Promise(resolve => setTimeout(resolve, 550));
+        }
       }
-      const result = await response.json();
-      const name = result && Array.isArray(result.names) && result.names[0];
-      this.setState({
-        name: typeof name === "string" && name ? name : "Sorry, no match",
-      });
+      this.setState({ name: "Sorry, no match" });
     } catch (e) {
       this.setState({ name: "Sorry, please try again" });
     } finally {
@@ -120,7 +134,7 @@ class App extends Component {
           </div>
           <p>In which language(s) do you expect people to call your baby&apos;s name?</p>
         <Dropdown onDropdown={this.updateUsage} />
-          <p>Each suggestion comes from one randomly chosen selected language.</p>
+          <p>We try your selected languages in a random order until we find a name.</p>
         </div>
       </div>
     );
