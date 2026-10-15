@@ -45,6 +45,11 @@
 
 .generator h1.babyname {
   font-size: 8.25rem;
+  line-height: 1.2;
+  min-height: 1.2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   margin-top: 5vh;
 }

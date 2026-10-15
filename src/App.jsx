@@ -1,9 +1,8 @@
 import React, { Component } from "react";
 import "./App.css";
-import Dropdown from "./Dropdown.js";
-import { trackPromise } from 'react-promise-tracker';
-import LoadingIndicator from "./InnerLoadingIndicator.js";
-import Emoji from "./Emoji.js";
+import Dropdown from "./Dropdown.jsx";
+import LoadingIndicator from "./InnerLoadingIndicator.jsx";
+import Emoji from "./Emoji.jsx";
 
 const colorArray = ["linear-gradient(to bottom right, #ffa1db, #2cb2ff)", "linear-gradient(to bottom right, #2cb2ff, #ffa1db)", "linear-gradient(to bottom right, #fff280, #5cff64)"];
 const reversedColorArray = ["linear-gradient(to bottom left, #DFF2FB, #F9DDE5)", "linear-gradient(to bottom left, #F9DDE5, #DFF2FB)", "linear-gradient(to bottom left, #C9FCCC, #FDFBDB)"];
@@ -99,14 +98,14 @@ class App extends Component {
           <h1>Name your &quot;bébé&quot;!</h1>
           <h4>The intercultural baby name generator</h4>
           <h2>Hi citizen of the world! Are you hoping to find <strong>THE best international name</strong> for your newborn? Then you&apos;ve landed in the right place.<br/><br/>Pick a gender (or don&apos;t) and let the generator inspire you!</h2>
-          <h1 className="babyname">{this.state.name}<LoadingIndicator /></h1>
+          <h1 className="babyname">{this.state.name}<LoadingIndicator loading={this.state.loading} /></h1>
           <div className="buttons">
             <button 
               className="genderButton"
               aria-label="genderButton"
               aria-hidden="false"
               aria-labelledby="buttons"
-              onClick={() => trackPromise(this.fetchName("f"))}
+              onClick={() => this.fetchName("f")}
               disabled={this.state.loading}
               >
               <Emoji symbol="♀" label="Female sign"/>
@@ -116,7 +115,7 @@ class App extends Component {
               aria-label="genderButton"
               aria-hidden="false"
               aria-labelledby="buttons"
-              onClick={() => trackPromise(this.fetchName("u"))}
+              onClick={() => this.fetchName("u")}
               disabled={this.state.loading}
               >
               <Emoji symbol="⚥" label="Male and female sign"/>
@@ -126,7 +125,7 @@ class App extends Component {
               aria-label="genderButton"
               aria-hidden="false"
               aria-labelledby="buttons"
-              onClick={() => trackPromise(this.fetchName("m"))}
+              onClick={() => this.fetchName("m")}
               disabled={this.state.loading}
             >
               <Emoji symbol="♂" label="Male sign"/>

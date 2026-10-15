@@ -1,18 +1,18 @@
 import React from 'react';
-import Tooltip from '@atlaskit/tooltip';
 import Select, { components } from 'react-select';
 import { options } from "./options.js";
 
 const Option = props => {
   return (
-    <Tooltip content={props.value} truncateText>
-      <components.Option {...props} />
-    </Tooltip>
+    <components.Option
+      {...props}
+      innerProps={{ ...props.innerProps, title: props.data.value }}
+    />
   );
 };
 
 const customStyles = {
-  option: (styles, state) => ({
+  option: (styles) => ({
     ...styles,
     cursor: 'pointer',
   }),
@@ -34,8 +34,7 @@ class Dropdown extends React.Component {
   handleChange = selectedOption => {
     this.setState(
       { selectedOption },
-      this.updateUsageChange,
-      () => console.log(`Option selected:`, this.state.selectedOption)
+      this.updateUsageChange
     );
   };
 
@@ -54,6 +53,8 @@ class Dropdown extends React.Component {
 
     return (
       <Select
+        aria-label="Languages"
+        getOptionValue={option => option.key}
         isMulti={true}
         closeMenuOnSelect={false}
         components={{ Option }}

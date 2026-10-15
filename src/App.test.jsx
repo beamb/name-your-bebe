@@ -1,13 +1,12 @@
 import React from 'react';
 import { act, fireEvent, render } from '@testing-library/react';
-import App from './App';
-
-jest.mock('./InnerLoadingIndicator', () => () => null);
+import userEvent from '@testing-library/user-event';
+import App from './App.jsx';
 
 const originalFetch = global.fetch;
 
 beforeEach(() => {
-  global.fetch = jest.fn().mockResolvedValue({
+  global.fetch = vi.fn().mockResolvedValue({
     ok: true,
     json: async () => ({ names: ['Camille'] }),
   });
@@ -15,8 +14,8 @@ beforeEach(() => {
 
 afterEach(() => {
   global.fetch = originalFetch;
-  jest.useRealTimers();
-  jest.restoreAllMocks();
+  vi.useRealTimers();
+  vi.restoreAllMocks();
 });
 
 function renderGenerator(usage = []) {
@@ -31,7 +30,7 @@ test.each([
   [0.5, 'eng'],
   [0.999999, 'fre'],
 ])('each selected language can be chosen (random value %s)', async (random, usage) => {
-  jest.spyOn(Math, 'random').mockReturnValue(random);
+  vi.spyOn(Math, 'random').mockReturnValue(random);
   const { buttons, findByText } = renderGenerator(['dan', 'eng', 'fre']);
 
   fireEvent.click(buttons[0]);
@@ -101,23 +100,46 @@ test('disables buttons while loading and allows retry after a network failure', 
   global.fetch.mockImplementationOnce(() => new Promise((resolve, reject) => {
     rejectRequest = reject;
   }));
-  const { buttons, findByText } = renderGenerator(['dan', 'eng', 'fre']);
+  const { buttons, findByText, getByLabelText, queryByLabelText } = renderGenerator(['dan', 'eng', 'fre']);
 
   fireEvent.click(buttons[0]);
   buttons.forEach(button => expect(button).toBeDisabled());
+  expect(getByLabelText('Loading names')).toBeInTheDocument();
 
   await act(async () => rejectRequest(new Error('Network error')));
   await findByText('Sorry, please try again');
   buttons.forEach(button => expect(button).not.toBeDisabled());
+  expect(queryByLabelText('Loading names')).not.toBeInTheDocument();
 
   fireEvent.click(buttons[0]);
   await findByText('Camille');
   expect(global.fetch).toHaveBeenCalledTimes(2);
 });
 
+test('the upgraded dropdown supports selecting, removing, and clearing languages', async () => {
+  const user = userEvent.setup();
+  const ref = React.createRef();
+  const { getByRole, getByLabelText, getByText } = render(<App ref={ref} />);
+  const input = getByRole('combobox', { name: 'Languages' });
+
+  await user.click(input);
+  await user.click(getByRole('option', { name: 'Danish' }));
+  await user.type(input, 'French');
+  await user.click(getByRole('option', { name: 'French' }));
+  expect(ref.current.state.usage).toEqual(['dan', 'fre']);
+
+  await user.click(getByLabelText('Remove Danish'));
+  expect(ref.current.state.usage).toEqual(['fre']);
+  await user.click(input);
+  await user.clear(input);
+  await user.keyboard('{Backspace}');
+  expect(ref.current.state.usage).toEqual([]);
+  expect(getByText('Select language(s)... Type to narrow your search.')).toBeInTheDocument();
+});
+
 test('tries another selected language after no match and stops at the first name', async () => {
-  jest.useFakeTimers();
-  jest.spyOn(Math, 'random').mockReturnValue(0);
+  vi.useFakeTimers();
+  vi.spyOn(Math, 'random').mockReturnValue(0);
   global.fetch.mockResolvedValueOnce({ ok: true, json: async () => ({ names: [] }) });
   const { app, buttons, getByText, queryByText } = renderGenerator(['dan', 'eng', 'fre']);
 
@@ -128,9 +150,9 @@ test('tries another selected language after no match and stops at the first name
 
   // Editing the selection during a retry must not change the current search.
   act(() => app.updateUsage(['ita']));
-  await act(async () => jest.advanceTimersByTime(549));
+  await act(async () => vi.advanceTimersByTime(549));
   expect(global.fetch).toHaveBeenCalledTimes(1);
-  await act(async () => jest.advanceTimersByTime(1));
+  await act(async () => vi.advanceTimersByTime(1));
 
   expect(getByText('Camille')).toBeInTheDocument();
   buttons.forEach(button => expect(button).not.toBeDisabled());
@@ -141,23 +163,23 @@ test('tries another selected language after no match and stops at the first name
     expect(params.getAll('usage')).toHaveLength(1);
     expect(params.get('number')).toBe('1');
   });
-  await act(async () => jest.advanceTimersByTime(550));
+  await act(async () => vi.advanceTimersByTime(550));
   expect(global.fetch).toHaveBeenCalledTimes(2);
 });
 
 test('shows no match only after trying every distinct selected language once', async () => {
-  jest.useFakeTimers();
-  jest.spyOn(Math, 'random').mockReturnValue(0);
+  vi.useFakeTimers();
+  vi.spyOn(Math, 'random').mockReturnValue(0);
   global.fetch.mockResolvedValue({ ok: true, json: async () => ({ names: [] }) });
   const { app, buttons, getByText, queryByText } = renderGenerator(['dan', 'eng', 'fre', 'eng']);
 
   await act(async () => fireEvent.click(buttons[1]));
-  await act(async () => jest.advanceTimersByTime(550));
+  await act(async () => vi.advanceTimersByTime(550));
   expect(global.fetch).toHaveBeenCalledTimes(2);
   expect(queryByText('Sorry, no match')).not.toBeInTheDocument();
   buttons.forEach(button => expect(button).toBeDisabled());
 
-  await act(async () => jest.advanceTimersByTime(550));
+  await act(async () => vi.advanceTimersByTime(550));
   expect(getByText('Sorry, no match')).toBeInTheDocument();
   buttons.forEach(button => expect(button).not.toBeDisabled());
   expect(global.fetch.mock.calls.map(([url]) => {
@@ -166,33 +188,33 @@ test('shows no match only after trying every distinct selected language once', a
     return params.get('usage');
   })).toEqual(['dan', 'eng', 'fre']);
   expect(app.state.usage).toEqual(['dan', 'eng', 'fre', 'eng']);
-  await act(async () => jest.advanceTimersByTime(550));
+  await act(async () => vi.advanceTimersByTime(550));
   expect(global.fetch).toHaveBeenCalledTimes(3);
 });
 
 test('makes only one unfiltered request when no language is selected and no name is found', async () => {
-  jest.useFakeTimers();
+  vi.useFakeTimers();
   global.fetch.mockResolvedValue({ ok: true, json: async () => ({ names: [] }) });
   const { buttons, getByText } = renderGenerator();
 
   await act(async () => fireEvent.click(buttons[0]));
   expect(getByText('Sorry, no match')).toBeInTheDocument();
-  await act(async () => jest.advanceTimersByTime(550));
+  await act(async () => vi.advanceTimersByTime(550));
   expect(global.fetch).toHaveBeenCalledTimes(1);
   expect(new URL(global.fetch.mock.calls[0][0]).searchParams.has('usage')).toBe(false);
 });
 
 test('stops and releases loading if a later language request fails', async () => {
-  jest.useFakeTimers();
+  vi.useFakeTimers();
   global.fetch
     .mockResolvedValueOnce({ ok: true, json: async () => ({ names: [] }) })
     .mockResolvedValueOnce({ ok: false, status: 429 });
   const { buttons, getByText } = renderGenerator(['dan', 'eng', 'fre']);
 
   await act(async () => fireEvent.click(buttons[0]));
-  await act(async () => jest.advanceTimersByTime(550));
+  await act(async () => vi.advanceTimersByTime(550));
   expect(getByText('Sorry, please try again')).toBeInTheDocument();
   buttons.forEach(button => expect(button).not.toBeDisabled());
-  await act(async () => jest.advanceTimersByTime(550));
+  await act(async () => vi.advanceTimersByTime(550));
   expect(global.fetch).toHaveBeenCalledTimes(2);
 });
