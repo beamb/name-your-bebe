@@ -1,88 +1,153 @@
 @import url("https://fonts.googleapis.com/css2?family=Raleway:wght@500&display=swap");
 *,
-*:before,
-*:after {
+*::before,
+*::after {
   font-family: inherit;
-  box-sizing: inherit;
+  box-sizing: border-box;
   color: inherit;
 }
 
 .wrapper {
   width: 100%;
   font-family: 'Raleway', sans-serif;
-  box-sizing: border-box;
   min-height: 100vh;
+  min-height: 100svh;
+  padding: clamp(0.75rem, 3vw, 2.5rem);
   display: flex;
   justify-content: center;
-  flex-wrap: wrap;
   align-items: center;
-  overflow: auto;
 }
 
 .generator {
-  padding: 50px;
+  width: 100%;
+  min-width: 0;
+  max-width: 70rem;
+  padding: clamp(1.25rem, 5vw, 3.125rem);
   border-radius: 8px;
-  max-width: 125vh;
   display: flex;
   flex-direction: column;
 }
 
 .generator h1 {
-  font-size: 3rem;
+  font-size: clamp(2rem, 6vw, 3rem);
+  line-height: 1.2;
   font-weight: bold;
   text-align: left;
-  margin-top: 0vh;
-  margin-bottom: 3vh;
-  overflow: hidden;
-  position: relative;
+  margin: 0 0 0.5em;
+  overflow-wrap: anywhere;
 }
 
 .generator h4 {
-  font-size: 1.42rem;
-  margin-top: -1.5vh;
-  margin-bottom: 5vh;
+  font-size: clamp(1rem, 2.8vw, 1.42rem);
+  line-height: 1.4;
+  margin: 0 0 clamp(1.5rem, 4vw, 2.5rem);
 }
 
 .generator h1.babyname {
-  font-size: 8.25rem;
+  font-size: clamp(2.25rem, 11vw, 8.25rem);
+  line-height: 1.2;
+  min-height: clamp(7.5rem, 20vw, 9.9rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  margin-top: 5vh;
+  margin: clamp(1.25rem, 4vw, 3rem) 0 1.25rem;
+}
+
+.generator h1.babyname--message {
+  font-size: clamp(1.25rem, 4vw, 2rem);
 }
 
 .generator h2 {
-  font-size: 1.25rem;
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  line-height: 1.5;
   font-weight: lighter;
   margin: 0;
-  overflow: wrap;
-  position: relative;
+  overflow-wrap: anywhere;
 }
 
 .buttons {
   display: flex;
-  flex-direction: row;
+  gap: clamp(0.75rem, 2vw, 1.25rem);
   justify-content: center;
-  margin: auto;
+  margin: 0 auto;
+  max-width: 100%;
 }
 
 .genderButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
   border-radius: 50%;
-  width: 70px;
-  height: 70px;
-  margin: 10px;
+  width: clamp(3.5rem, 15vw, 4.375rem);
+  height: clamp(3.5rem, 15vw, 4.375rem);
+  flex-shrink: 0;
   border: none;
   font-size: 2rem;
   overflow: hidden;
   background-color: #fff;
+  cursor: pointer;
+  touch-action: manipulation;
 }
 
-.genderButton:hover {
-  cursor: pointer;
-  transform: scale(1.2);
-  color: #f5564e;
-  font-weight: bold;
+.genderButton .emoji {
+  display: block;
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+  stroke-width: 1.75;
+}
+
+.genderButton:focus-visible {
+  outline: 3px solid #242424;
+  outline-offset: 4px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .genderButton:hover:not(:disabled) {
+    transform: scale(1.1);
+    color: #f5564e;
+    font-weight: bold;
+  }
+
+  .genderButton:hover:not(:disabled) .emoji {
+    stroke-width: 2.75;
+  }
 }
 
 .genderButton:disabled {
   cursor: not-allowed;
-  pointer-events: all !important;
+  opacity: 0.6;
+}
+
+.language-label {
+  margin: 1.5rem 0 0.75rem;
+  line-height: 1.5;
+}
+
+.language-select {
+  min-width: 0;
+  /* A 16px input also avoids automatic zoom when focused on iOS. */
+  font-size: 1rem;
+}
+
+.language-hint {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0.75rem 0 0;
+}
+
+@media (max-width: 40rem) {
+  .wrapper {
+    align-items: flex-start;
+  }
+
+  .generator h1.babyname {
+    font-size: clamp(2.25rem, 11vw, 3rem);
+  }
+
+  .generator h1.babyname--message {
+    font-size: 1.25rem;
+  }
 }

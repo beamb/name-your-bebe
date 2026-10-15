@@ -1,4 +1,4 @@
-export const options = [
+const languageOptions = [
   {
     key: "afk",
     label: "Afrikaans",
@@ -1086,4 +1086,14 @@ export const options = [
     label: "Zulu",
     value: "Zulu names are used by the Zulu people of South Africa.",
   },
-];
+] as const;
+
+export type UsageCode = (typeof languageOptions)[number]["key"];
+
+export interface LanguageOption {
+  readonly key: UsageCode;
+  readonly label: string;
+  readonly value: string;
+}
+
+export const options: readonly LanguageOption[] = languageOptions;
